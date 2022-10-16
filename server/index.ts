@@ -17,7 +17,7 @@ const handle = app.getRequestHandler();
 const requestListner = (req: any, res: any) => {
   const parsedUrl = parse(req.url, true);
   req.context = context;
-  handle(req, res, parsedUrl);
+  return handle(req, res, parsedUrl);
 };
 
 app.prepare().then(() => {
@@ -32,10 +32,10 @@ app.prepare().then(() => {
     // }
   });
   if (!context.io) return;
-  context.io.on("connection", (client) => {
-    console.log("connect");
+  context.io.on("connect", (client) => {
+    console.log("server connected");
     client.on("disconnect", () => {
-      console.log("disconnect");
+      console.log("server disconnected");
     });
   });
 

@@ -17,7 +17,7 @@ var handle = app.getRequestHandler();
 var requestListner = function (req, res) {
     var parsedUrl = (0, url_1.parse)(req.url, true);
     req.context = context;
-    handle(req, res, parsedUrl);
+    return handle(req, res, parsedUrl);
 };
 app.prepare().then(function () {
     var port = parseInt(process.env.PORT || "3000");
@@ -30,10 +30,10 @@ app.prepare().then(function () {
     });
     if (!context.io)
         return;
-    context.io.on("connection", function (client) {
-        console.log("connect");
+    context.io.on("connect", function (client) {
+        console.log("server connected");
         client.on("disconnect", function () {
-            console.log("disconnect");
+            console.log("server disconnected");
         });
     });
     server.listen(port, function () {

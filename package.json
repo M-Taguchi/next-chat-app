@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "ts-node --project tsconfig.server.json server/index.ts",
     "build": "next build && tsc -p tsconfig.server.json",
-    "start": "next start",
+    "start": "node ./dist/index.js",
     "lint": "next lint"
   },
   "dependencies": {
