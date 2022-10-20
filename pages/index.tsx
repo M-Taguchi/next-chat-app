@@ -4,8 +4,6 @@ import { io, Socket } from "socket.io-client";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import styles from "../styles/Home.module.css";
 
-let socket: Socket<DefaultEventsMap, DefaultEventsMap>;
-
 const Home: NextPage = () => {
   const [messages, setMessages] = useState<string[]>([]);
   const [socket, _] = useState(() => io());
