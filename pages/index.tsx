@@ -8,9 +8,8 @@ let socket: Socket<DefaultEventsMap, DefaultEventsMap>;
 
 const Home: NextPage = () => {
   const [messages, setMessages] = useState<string[]>([]);
+  const [socket, _] = useState(() => io());
   const socketInitializer = async () => {
-    socket = io();
-
     socket.on("connect", () => {
       console.log("client connected");
     });
