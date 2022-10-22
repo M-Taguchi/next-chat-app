@@ -1,38 +1,55 @@
+import {
+  Box,
+  Button,
+  Center,
+  Flex,
+  FormControl,
+  FormLabel,
+  Input,
+} from "@chakra-ui/react";
+import axios from "axios";
 import type { NextPage } from "next";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
+import { useSocket } from "../hooks/useSocket";
 import styles from "../styles/Home.module.css";
 
 const Home: NextPage = () => {
   const [messages, setMessages] = useState<string[]>([]);
-  const [socket, _] = useState(() => io());
-  const socketInitializer = async () => {
-    socket.on("connect", () => {
-      console.log("client connected");
-    });
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const { socket, setUserName } = useSocket();
+  const router = useRouter();
 
-    socket.on("test", ({ message }) => {
-      setMessages([...messages, message]);
-    });
-
-    return null;
-  };
-  useEffect(() => {
-    socketInitializer();
-  });
-
-  const testEmitMessage = async () => {
-    await fetch("/api/test");
+  const enterRoom = async () => {
+    if (!inputRef.current || !inputRef.current.value) {
+      alert("ユーザ名が空です。");
+      return;
+    }
+    await axios
+      .post("/api/room/enterRoom", {
+        id: socket.id,
+        userName: inputRef.current.value,
+      })
+      .then((res) => {
+        setUserName(res.data.userName);
+        router.push("/room");
+      });
   };
 
   return (
-    <div className={styles.container}>
-      <button onClick={() => testEmitMessage()}>テスト</button>
-      {messages.map((message, index) => (
-        <p key={index}>{message}</p>
-      ))}
-    </div>
+    <Center h="100%">
+      <Box bg="white" border="1px solid black" p="8">
+        <Flex gap="8" direction="column">
+          <FormControl>
+            <FormLabel>ユーザ名</FormLabel>
+            <Input ref={inputRef} />
+          </FormControl>
+          <Button onClick={() => enterRoom()}>入室</Button>
+        </Flex>
+      </Box>
+    </Center>
   );
 };
 

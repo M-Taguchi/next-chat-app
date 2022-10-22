@@ -1,7 +1,7 @@
 import { parse } from "url";
 import next from "next";
 import { createServer } from "http";
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 
 // API内で共通で使用するコンテキスト
 const context: {
