@@ -10,14 +10,10 @@ import {
 import axios from "axios";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
-import { useEffect, useRef, useState } from "react";
-import { io, Socket } from "socket.io-client";
-import { DefaultEventsMap } from "socket.io/dist/typed-events";
+import { useRef, useState } from "react";
 import { useSocket } from "../hooks/useSocket";
-import styles from "../styles/Home.module.css";
 
 const Home: NextPage = () => {
-  const [messages, setMessages] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const { socket, setUserName } = useSocket();
   const router = useRouter();
