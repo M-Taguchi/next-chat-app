@@ -72,6 +72,7 @@ const Room: NextPage = () => {
   return (
     <>
       <Box p="16" width="100%" height="100%">
+        {/* 入力エリア */}
         <Text>こんにちは、{userName}さん</Text>
         <Flex gap="8" width="50%">
           <Flex width="100%">
