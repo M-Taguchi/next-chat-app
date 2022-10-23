@@ -26,10 +26,10 @@ const Home: NextPage = () => {
     await axios
       .post("/api/room/enterRoom", {
         id: socket.id,
-        userName: inputRef.current.value,
+        name: inputRef.current.value,
       })
       .then((res) => {
-        setUserName(res.data.userName);
+        setUserName(res.data.name);
         router.push("/room");
       });
   };

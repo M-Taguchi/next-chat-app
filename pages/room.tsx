@@ -11,11 +11,12 @@ import { NextPage } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { useSocket } from "../hooks/useSocket";
+import { MESSAGE_TYPE } from "../common/client/constant";
 
 const Room: NextPage = () => {
   const { userName } = useSocket();
   const [messages, setMessages] = useState<
-    { message: string; userName: string }[]
+    { message: string; name: string; messageType: MESSAGE_TYPE }[]
   >([]);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -24,24 +25,40 @@ const Room: NextPage = () => {
   const router = useRouter();
 
   useEffect(() => {
-    socket.on("enterRoom", ({ userName }: { userName: string }) => {
+    socket.on("enterRoom", ({ name }: { name: string }) => {
       setMessages([
         ...messages,
-        { message: `${userName}さんが入室しました`, userName: "" },
+        {
+          message: `${name}さんが入室しました`,
+          name: "",
+          messageType: MESSAGE_TYPE.SYSTEM,
+        },
       ]);
     });
 
-    socket.on("leaveRoom", ({ userName }: { userName: string }) => {
+    socket.on("leaveRoom", ({ name }: { name: string }) => {
       setMessages([
         ...messages,
-        { message: `${userName}さんが退室しました`, userName: "" },
+        {
+          message: `${name}さんが退室しました`,
+          name: "",
+          messageType: MESSAGE_TYPE.SYSTEM,
+        },
       ]);
     });
 
     socket.on(
       "receiveMessage",
-      ({ message, userName }: { message: string; userName: string }) => {
-        setMessages([...messages, { message, userName }]);
+      ({ message, name }: { message: string; name: string }) => {
+        setMessages([
+          ...messages,
+          {
+            message,
+            name,
+            messageType:
+              name === userName ? MESSAGE_TYPE.ME : MESSAGE_TYPE.OTHER,
+          },
+        ]);
       }
     );
   });
@@ -53,7 +70,7 @@ const Room: NextPage = () => {
     }
     await axios.post("/api/chat/sendMessage", {
       message: inputRef.current?.value,
-      userName,
+      name: userName,
     });
     inputRef.current.value = "";
   };
@@ -62,7 +79,7 @@ const Room: NextPage = () => {
     await axios
       .post("/api/room/leaveRoom", {
         id: socket.id,
-        userName,
+        name: userName,
       })
       .then(() => {
         router.push("/logout");
@@ -94,19 +111,28 @@ const Room: NextPage = () => {
           my="4"
         >
           <Flex gap="4" direction="column">
-            {messages.map(({ message, userName }, index) => (
-              <div key={index}>
-                <Text>{userName}</Text>
+            {messages.map(({ message, name, messageType }, index) => (
+              <Box
+                key={index}
+                alignSelf={
+                  messageType === MESSAGE_TYPE.ME
+                    ? "flex-end"
+                    : messageType === MESSAGE_TYPE.SYSTEM
+                    ? "center"
+                    : undefined
+                }
+              >
+                <Text>{name}</Text>
                 <Box
                   border="1px solid black"
                   borderRadius="6"
-                  maxWidth="50%"
+                  maxWidth="50rem"
                   width="fit-content"
                   p="2"
                 >
                   <Text>{message}</Text>
                 </Box>
-              </div>
+              </Box>
             ))}
           </Flex>
         </Flex>

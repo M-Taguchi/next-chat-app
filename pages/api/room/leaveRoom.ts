@@ -3,10 +3,10 @@ export default function handler(req: any, res: any) {
     let socket = s[1];
     if (socket.id === req.body.id) continue;
     socket.emit("leaveRoom", {
-      userName: req.body.userName,
+      name: req.body.name,
     });
   }
 
-  res.status(200).json({ userName: req.body.userName });
+  res.status(200).json({ name: req.body.name });
   // res.end();
 }
