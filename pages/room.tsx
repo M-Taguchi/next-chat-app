@@ -65,7 +65,7 @@ const Room: NextPage = () => {
         userName,
       })
       .then(() => {
-        router.push("/");
+        router.push("/logout");
       });
   };
 
