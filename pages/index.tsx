@@ -10,7 +10,7 @@ import {
 import axios from "axios";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { useSocket } from "../hooks/useSocket";
 
 const Home: NextPage = () => {
