@@ -1,4 +1,11 @@
-import { Button, Flex, FormControl, Input, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  FormControl,
+  Text,
+  Textarea,
+} from "@chakra-ui/react";
 import axios from "axios";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
@@ -7,8 +14,10 @@ import { useSocket } from "../hooks/useSocket";
 
 const Room: NextPage = () => {
   const { userName } = useSocket();
-  const [messages, setMessages] = useState<string[]>([]);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [messages, setMessages] = useState<
+    { message: string; userName: string }[]
+  >([]);
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
 
   const { socket } = useSocket();
 
@@ -16,28 +25,43 @@ const Room: NextPage = () => {
 
   useEffect(() => {
     socket.on("enterRoom", ({ userName }: { userName: string }) => {
-      setMessages([...messages, `${userName}さんが入室しました`]);
+      setMessages([
+        ...messages,
+        { message: `${userName}さんが入室しました`, userName: "" },
+      ]);
     });
 
     socket.on("leaveRoom", ({ userName }: { userName: string }) => {
-      setMessages([...messages, `${userName}さんが退室しました`]);
+      setMessages([
+        ...messages,
+        { message: `${userName}さんが退室しました`, userName: "" },
+      ]);
     });
 
-    socket.on("receiveMessage", ({ message }: { message: string }) => {
-      console.log(messages);
-      setMessages([...messages, message]);
-    });
+    socket.on(
+      "receiveMessage",
+      ({ message, userName }: { message: string; userName: string }) => {
+        setMessages([...messages, { message, userName }]);
+      }
+    );
   });
 
   const sendMessage = async () => {
+    if (!inputRef.current || !inputRef.current.value) {
+      alert("メッセージを入力してください");
+      return;
+    }
     await axios.post("/api/chat/sendMessage", {
       message: inputRef.current?.value,
+      userName,
     });
+    inputRef.current.value = "";
   };
 
   const leaveRoom = async () => {
     await axios
       .post("/api/room/leaveRoom", {
+        id: socket.id,
         userName,
       })
       .then(() => {
@@ -47,19 +71,45 @@ const Room: NextPage = () => {
 
   return (
     <>
-      <Text>こんにちは、{userName}さん</Text>
-      <Flex direction="column">
-        {messages.map((message, index) => (
-          <Text key={index}>{message}</Text>
-        ))}
-      </Flex>
-      <Flex gap="8">
-        <FormControl>
-          <Input ref={inputRef} placeholder="メッセージを入力" />
-        </FormControl>
-        <Button onClick={() => sendMessage()}>送信</Button>
-      </Flex>
-      <Button onClick={() => leaveRoom()}>退出</Button>
+      <Box p="16" width="100%" height="100%">
+        <Text>こんにちは、{userName}さん</Text>
+        <Flex gap="8" width="50%">
+          <Flex width="100%">
+            <FormControl>
+              <Textarea ref={inputRef} placeholder="メッセージを入力" />
+            </FormControl>
+            <Button onClick={() => sendMessage()}>送信</Button>
+          </Flex>
+          <Button onClick={() => leaveRoom()}>退出</Button>
+        </Flex>
+        {/* メッセージエリア */}
+        <Flex
+          direction="column"
+          border="1px solid black"
+          borderRadius="6"
+          p="4"
+          height="500"
+          overflow="auto"
+          my="4"
+        >
+          <Flex gap="4" direction="column">
+            {messages.map(({ message, userName }, index) => (
+              <div key={index}>
+                <Text>{userName}</Text>
+                <Box
+                  border="1px solid black"
+                  borderRadius="6"
+                  maxWidth="50%"
+                  width="fit-content"
+                  p="2"
+                >
+                  <Text>{message}</Text>
+                </Box>
+              </div>
+            ))}
+          </Flex>
+        </Flex>
+      </Box>
     </>
   );
 };

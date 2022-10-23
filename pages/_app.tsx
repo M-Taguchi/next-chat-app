@@ -6,7 +6,7 @@ import { ChakraProvider } from "@chakra-ui/react";
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ChakraProvider>
-      <div style={{ height: "100vh" }}>
+      <div style={{ width: "100vw", height: "100vh" }}>
         <Component {...pageProps} />
       </div>
     </ChakraProvider>
